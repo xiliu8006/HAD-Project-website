@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="HAD: Hallucination-Aware Diffusion Priors for 3D Reconstruction.">
+  <meta name="keywords" content="3DGS, Diffusion, novel view systhesis">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HAD: Hallucination-Aware Diffusion Priors for 3D Reconstruction</title>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">HAD: Hallucination-Aware Diffusion Priors for 3D Reconstruction</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><a href="#" target="_blank" rel="noopener noreferrer">Xi Liu</a><sup>1,2,*;</sup></span>
+            <span class="author-block"><a href="#" target="_blank" rel="noopener noreferrer">Weiwei Sun</a><sup>1,&dagger;</sup></span>
+            <span class="author-block"><a href="#" target="_blank" rel="noopener noreferrer">Zhou Ren</a><sup>1</sup></span>
+            <span class="author-block"><a href="#" target="_blank" rel="noopener noreferrer">Chris Broaddus</a><sup>1</sup></span>
+            <span class="author-block"><a href="#" target="_blank" rel="noopener noreferrer">Siyu Huang</a><sup>2</sup></span>
+            <span class="author-block"><a href="#" target="_blank" rel="noopener noreferrer">Laurent Guigues</a><sup>1</sup></span>
+          </div>
+          <div class="is-size-5 publication-authors publication-affiliations">
+            <span class="author-block"><sup>1</sup>Amazon AWS</span>
+            <span class="author-block"><sup>2</sup>Clemson University</span>
+          </div>
+          <div class="is-size-6 publication-authors publication-notes">
+            <span class="author-block"><sup>&dagger;</sup>Corresponding author</span>
+            <span class="author-block"><sup>*</sup>Work done at Amazon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PDF Link -->
+<div class="is-size-5 publication-links has-text-centered">
+  <span class="link-block">
+    <a href="#" class="external-link button is-normal is-rounded is-dark" target="_blank">
+      <span class="icon">
+        <i class="fas fa-file-pdf"></i>
+      </span>
+      <span>Paper</span>
+    </a>
+  </span>
+  <span class="link-block">
+    <a href="#" class="external-link button is-normal is-rounded is-dark" target="_blank">
+      <span class="icon">
+        <i class="fab fa-github"></i>
+      </span>
+      <span>Code</span>
+    </a>
+  </span>
+</div>
+
+<body>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Diffusion priors have recently demonstrated strong capability in enhancing the quality of sparse-view 3D reconstruction by augmenting training views at novel viewpoints, 
+            but they inevitably introduce hallucinated content-- artifacts inconsistent with the input views -- into the final 3D model. 
+            To address this challenge, we propose Hallucination-Aware Diffusion prior (HAD), which estimates pixel-wise hallucination score maps for augmented images by leveraging multi-view reasoning capabilities from a feedforward novel view synthesis (NVS) network pre-trained on large-scale 3D data.
+            These hallucination scores enable selective masking of unreliable pixels during the progressive 3D reconstruction procedure, preventing the introduction of non-existent artifacts into the 3D model. To further enhance performance, we create multiple versions of augmented images at each novel view by conditioning the diffusion prior on different input views, which are then fused into a final image that leverages the broader context across all input views. We show that our method substantially reduces hallucination artifacts in diffusion-assisted 3D reconstruction, thereby achieving state-of-the-art performance across multiple benchmarks on novel view synthesis.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title has-text-centered">Method Overview</h1>
+      
+      <div class="columns is-centered">
+        <div class="column is-10">
+          <img src="./static/images/method_overview.png" alt="HAD method overview" class="framework-image">
+        </div>
+      </div>
+      
+      <!-- Optional: Add description -->
+      <div class="content has-text-centered" style="margin-top: 2rem;">
+        <p>We train 3DGS with input images and HAD-augmented novel views. HAD combines a pretrained diffusion prior (which generates images from 3DGS-rendered views conditioned on reference input images) with our hallucination score network (which predicts pixel-wise reliability maps). Our multi-sampling strategy fuses multiple generated versions into refined augmented views. Hallucination scores guide 3DGS optimization by masking off unreliable content improving reconstruction quality in data-sparse scenarios.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title is-2 has-text-centered" style="margin-bottom: 2rem;">
+        Hallucination Removal Results
+      </h1>
+      <p class="subtitle has-text-centered" style="margin-bottom: 3rem; color: #666;">
+        Our method effectively eliminates "dreaming" artifacts introduced by diffusion priors
+      </p>
+
+      <div style="margin-bottom: 4rem;">
+        <h2 class="title is-4 has-text-centered" style="margin-bottom: 2rem;">
+          DL3DV Dataset Results
+        </h2>
+        
+        <div class="box" style="background-color: #f9f9f9; margin-bottom: 2rem;">
+          <h3 class="title is-6 has-text-centered" style="margin-bottom: 1.5rem;">Hallucination Analysis</h3>
+          
+          <div class="columns is-centered">
+            <div class="column is-12">
+              <div id="image-carousel-dl3dv" class="carousel results-carousel" data-size="1">
+                <div class="item item-0a485-img">
+                  <figure class="image">
+                    <img src="./static/images/hallucination_examples/0a485.png" alt="Scene 0a485">
+                  </figure>
+                  <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                  </p>
+                </div>
+                <div class="item item-28623-img">
+                  <figure class="image">
+                    <img src="./static/images/hallucination_examples/28623.png" alt="Scene 28623">
+                  </figure>
+                  <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                  </p>
+                </div>
+                <div class="item item-c0769-img">
+                  <figure class="image">
+                    <img src="./static/images/hallucination_examples/c0769.png" alt="Scene c0769">
+                  </figure>
+                  <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                  </p>
+                </div>
+                <div class="item item-ff592-img">
+                  <figure class="image">
+                    <img src="./static/images/hallucination_examples/ff592.png" alt="Scene ff592">
+                  </figure>
+                  <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="has-text-centered" style="margin-bottom: 1.5rem; color: #666; font-size: 1.05rem;">
+            <strong>Video Comparison:</strong> Navigate through scenes to see corresponding hallucination analysis above
+          </p>
+          
+          <div id="results-carousel-dl3dv" class="carousel results-carousel comparison-video-frame" data-size="1">
+            <div class="item item-0a485">
+              <div class="video-compare" data-video-compare>
+                <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_right/0a485338bbdaf19ba9090b874bb36ef0599a9c9a475a382c22903cf5981c6ea6.mp4" type="video/mp4">
+                </video>
+                <div class="video-compare__before-wrap">
+                  <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                    <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_left/0a485338bbdaf19ba9090b874bb36ef0599a9c9a475a382c22903cf5981c6ea6.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="video-compare__divider"></div>
+                <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Difix3D and Ours">
+                <div class="video-compare__labels"><span>Difix3D</span><span>Ours (HAD)</span></div>
+              </div>
+            </div>
+            <div class="item item-28623">
+              <div class="video-compare" data-video-compare>
+                <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_right/286239bd0d4436b747987c40f8cbfc0675bb69435d4ab19a3f73b9d816d0c09a.mp4" type="video/mp4">
+                </video>
+                <div class="video-compare__before-wrap">
+                  <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                    <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_left/286239bd0d4436b747987c40f8cbfc0675bb69435d4ab19a3f73b9d816d0c09a.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="video-compare__divider"></div>
+                <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Difix3D and Ours">
+                <div class="video-compare__labels"><span>Difix3D</span><span>Ours (HAD)</span></div>
+              </div>
+            </div>
+            <div class="item item-c0769">
+              <div class="video-compare" data-video-compare>
+                <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_right/c076929db6501cf7ebe386c70e6d77ea3af844a745e794f2ec17c981c465a69b.mp4" type="video/mp4">
+                </video>
+                <div class="video-compare__before-wrap">
+                  <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                    <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_left/c076929db6501cf7ebe386c70e6d77ea3af844a745e794f2ec17c981c465a69b.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="video-compare__divider"></div>
+                <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Difix3D and Ours">
+                <div class="video-compare__labels"><span>Difix3D</span><span>Ours (HAD)</span></div>
+              </div>
+            </div>
+            <div class="item item-ff592">
+              <div class="video-compare" data-video-compare>
+                <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_right/ff592398657b3dfe94153332861985194a3e3c9d199c4a3a27a0ce4038e81ade.mp4" type="video/mp4">
+                </video>
+                <div class="video-compare__before-wrap">
+                  <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                    <source src="./static/videos/DL3DV_videos/difix3d_vs_ours_left/ff592398657b3dfe94153332861985194a3e3c9d199c4a3a27a0ce4038e81ade.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="video-compare__divider"></div>
+                <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Difix3D and Ours">
+                <div class="video-compare__labels"><span>Difix3D</span><span>Ours (HAD)</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="has-text-centered" style="margin-top: 1.5rem; padding-left: 5rem;">
+            <span style="font-size: 1.15rem;">
+              <strong>Difix3D</strong> <span style="color: #e74c3c;">(with hallucinations)</span>
+              <span style="margin: 0 1.5rem; color: #ccc;">|</span> 
+              <strong style="color: #3273dc;">Ours (HAD)</strong> <span style="color: #27ae60;">(mitigated hallucinations)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+      
+        <div style="margin-bottom: 4rem;">
+        <h2 class="title is-4 has-text-centered" style="margin-bottom: 2rem;">
+          MipNeRF360 Dataset Results
+        </h2>
+        
+        <div class="box" style="background-color: #f9f9f9; margin-bottom: 2rem;">
+          <h3 class="title is-6 has-text-centered" style="margin-bottom: 1.5rem;">Hallucination Analysis</h3>
+          
+          <div class="columns is-centered">
+            <div class="column is-12">
+              <div id="image-carousel-mipnerf360" class="carousel results-carousel" data-size="1">
+                <div class="item item-9e9a8-img">
+                  <figure class="image">
+                    <img src="./static/images/hallucination_examples/counter.png" alt="Scene 9e9a8">
+                  </figure>
+                  <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                  </p>
+                </div>
+                <div class="item item-a4014-img">
+                  <figure class="image">
+                    <img src="./static/images/hallucination_examples/bicycle.png" alt="Scene a4014">
+                  </figure>
+                  <p class="has-text-centered" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="has-text-centered" style="margin-bottom: 1.5rem; color: #666; font-size: 1.05rem;">
+            <strong>Video Comparison:</strong> Navigate through scenes to see corresponding hallucination analysis above
+          </p>
+          
+          <div id="results-carousel-mipnerf360" class="carousel results-carousel comparison-video-frame" data-size="1">
+            <div class="item item-counter">
+              <div class="video-compare" data-video-compare>
+                <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                  <source src="./static/videos/MipNeRF360_videos/difix3d_vs_ours_right/counter.mp4" type="video/mp4">
+                </video>
+                <div class="video-compare__before-wrap">
+                  <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                    <source src="./static/videos/MipNeRF360_videos/difix3d_vs_ours_left/counter.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="video-compare__divider"></div>
+                <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Difix3D and Ours">
+                <div class="video-compare__labels"><span>Difix3D</span><span>Ours (HAD)</span></div>
+              </div>
+            </div>
+            <div class="item item-bicycle">
+              <div class="video-compare" data-video-compare>
+                <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                  <source src="./static/videos/MipNeRF360_videos/difix3d_vs_ours_right/bicycle.mp4" type="video/mp4">
+                </video>
+                <div class="video-compare__before-wrap">
+                  <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                    <source src="./static/videos/MipNeRF360_videos/difix3d_vs_ours_left/bicycle.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="video-compare__divider"></div>
+                <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Difix3D and Ours">
+                <div class="video-compare__labels"><span>Difix3D</span><span>Ours (HAD)</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="has-text-centered" style="margin-top: 1.5rem; padding-left: 5rem;">
+            <span style="font-size: 1.15rem;">
+              <strong>Difix3D</strong> <span style="color: #e74c3c;">(with hallucinations)</span>
+              <span style="margin: 0 1.5rem; color: #ccc;">|</span> 
+              <strong style="color: #3273dc;">Ours (HAD)</strong> <span style="color: #27ae60;">(mitigated hallucinations)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title is-2 has-text-centered" style="margin-bottom: 1rem;">
+        Hallucination Detection
+      </h1>
+      <p class="subtitle has-text-centered" style="margin-bottom: 2rem; color: #666;">
+        Our hallucination scoring network can also detect hallucinations from video and multi-view diffusion priors
+      </p>
+
+      <div id="hallucination-detection-carousel" class="carousel results-carousel detection-figure-frame" data-size="1">
+        <div class="item">
+          <figure class="image">
+            <img src="./static/images/hallucination_detection/video-diffusion.png" alt="Hallucination detection results for video diffusion">
+          </figure>
+        </div>
+        <div class="item">
+          <figure class="image">
+            <img src="./static/images/hallucination_detection/Multi-view-diffusion.png" alt="Hallucination detection results for multi-view diffusion">
+          </figure>
+        </div>
+      </div>
+
+      <div class="content has-text-justified detection-analysis">
+        <p>
+          Beyond removing hallucinations in our reconstruction pipeline, we further evaluate whether the hallucination scoring module can recognize artifacts introduced by other diffusion priors. Given outputs from video diffusion and multi-view diffusion pipelines, the same scorer highlights unreliable regions without fine-tuning on those target models. This suggests that our score is driven by multi-view inconsistency rather than generator-specific artifacts, allowing HAD to detect hallucinations from diverse diffusion models before they are fused into the 3D reconstruction.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title is-2 has-text-centered" style="margin-bottom: 2rem;">
+        Qualitative Comparisons
+      </h1>
+      <div style="margin-bottom: 4rem;">
+        <h2 class="title is-4 has-text-centered" style="margin-bottom: 1rem;">
+          DL3DV Dataset
+        </h2>
+        <p class="has-text-centered" style="margin-bottom: 1.5rem; color: #666;">
+          Side-by-side comparison showing reconstruction quality improvements
+        </p>
+
+        <!-- <h1 class="subtitle has-text-centered">Qualitative Video Results of DL3DV</h1> -->
+        <div id="results-carousel-dl3dv-qualitative" class="carousel results-carousel comparison-video-frame" data-size="1">
+          <div class="item item-0a485">
+            <div class="video-compare" data-video-compare>
+              <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_right/0a485338bbdaf19ba9090b874bb36ef0599a9c9a475a382c22903cf5981c6ea6.mp4" type="video/mp4">
+              </video>
+              <div class="video-compare__before-wrap">
+                <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_left/0a485338bbdaf19ba9090b874bb36ef0599a9c9a475a382c22903cf5981c6ea6.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="video-compare__divider"></div>
+              <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Gsplat-MCMC and Ours">
+              <div class="video-compare__labels"><span>Gsplat-MCMC</span><span>Ours (HAD)</span></div>
+            </div>
+          </div>
+          <div class="item item-28623">
+            <div class="video-compare" data-video-compare>
+              <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_right/286239bd0d4436b747987c40f8cbfc0675bb69435d4ab19a3f73b9d816d0c09a.mp4" type="video/mp4">
+              </video>
+              <div class="video-compare__before-wrap">
+                <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_left/286239bd0d4436b747987c40f8cbfc0675bb69435d4ab19a3f73b9d816d0c09a.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="video-compare__divider"></div>
+              <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Gsplat-MCMC and Ours">
+              <div class="video-compare__labels"><span>Gsplat-MCMC</span><span>Ours (HAD)</span></div>
+            </div>
+          </div>
+          <div class="item item-c0769">
+            <div class="video-compare" data-video-compare>
+              <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_right/c076929db6501cf7ebe386c70e6d77ea3af844a745e794f2ec17c981c465a69b.mp4" type="video/mp4">
+              </video>
+              <div class="video-compare__before-wrap">
+                <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_left/c076929db6501cf7ebe386c70e6d77ea3af844a745e794f2ec17c981c465a69b.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="video-compare__divider"></div>
+              <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Gsplat-MCMC and Ours">
+              <div class="video-compare__labels"><span>Gsplat-MCMC</span><span>Ours (HAD)</span></div>
+            </div>
+          </div>
+          <div class="item item-ff592">
+            <div class="video-compare" data-video-compare>
+              <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_right/ff592398657b3dfe94153332861985194a3e3c9d199c4a3a27a0ce4038e81ade.mp4" type="video/mp4">
+              </video>
+              <div class="video-compare__before-wrap">
+                <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                  <source src="./static/videos/DL3DV_videos/gsplat_vs_ours_left/ff592398657b3dfe94153332861985194a3e3c9d199c4a3a27a0ce4038e81ade.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="video-compare__divider"></div>
+              <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Gsplat-MCMC and Ours">
+              <div class="video-compare__labels"><span>Gsplat-MCMC</span><span>Ours (HAD)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="has-text-centered" style="margin-top: 1rem;">
+            <span style="font-size: 1.1rem;">
+              <strong>Gsplat-MCMC</strong> 
+              <span style="margin: 0 1rem; color: #ccc;">|</span> 
+              <strong style="color: #3273dc;">Ours (HAD)</strong>
+            </span>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="title is-4 has-text-centered" style="margin-bottom: 1rem;">
+          MipNeRF360 Dataset
+        </h2>
+        <p class="has-text-centered" style="margin-bottom: 1.5rem; color: #666;">
+          Evaluation on challenging 360° scenes
+        </p>
+        
+        <div id="results-carousel-mipnerf360-qualitative" class="carousel results-carousel comparison-video-frame" data-size="1">
+          <div class="item item-counter">
+            <div class="video-compare" data-video-compare>
+              <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                <source src="./static/videos/MipNeRF360_videos/gsplat_vs_ours_right/counter.mp4" type="video/mp4">
+              </video>
+              <div class="video-compare__before-wrap">
+                <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                  <source src="./static/videos/MipNeRF360_videos/gsplat_vs_ours_left/counter.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="video-compare__divider"></div>
+              <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Gsplat-MCMC and Ours">
+              <div class="video-compare__labels"><span>Gsplat-MCMC</span><span>Ours (HAD)</span></div>
+            </div>
+          </div>
+          <div class="item item-bicycle">
+            <div class="video-compare" data-video-compare>
+              <video class="video-compare__video video-compare__after" autoplay muted loop playsinline>
+                <source src="./static/videos/MipNeRF360_videos/gsplat_vs_ours_right/bicycle.mp4" type="video/mp4">
+              </video>
+              <div class="video-compare__before-wrap">
+                <video class="video-compare__video video-compare__before" autoplay muted loop playsinline>
+                  <source src="./static/videos/MipNeRF360_videos/gsplat_vs_ours_left/bicycle.mp4" type="video/mp4">
+                </video>
+              </div>
+              <div class="video-compare__divider"></div>
+              <input class="video-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare Gsplat-MCMC and Ours">
+              <div class="video-compare__labels"><span>Gsplat-MCMC</span><span>Ours (HAD)</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="has-text-centered" style="margin-top: 1rem; padding-right: 1rem;">
+          <span style="font-size: 1.1rem;">
+            <strong>Gsplat-MCMC</strong> 
+            <span style="margin: 0 1rem; color: #ccc;">|</span> 
+            <strong style="color: #3273dc;">Ours (HAD)</strong>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

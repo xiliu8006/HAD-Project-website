@@ -23,10 +23,12 @@ project-root/
 │   ├── css/
 │   ├── js/
 │   ├── images/
-│   │   └── framework.png
+│   │   ├── method_overview.png
+│   │   ├── hallucination_detection/
+│   │   └── hallucination_examples/
 │   └── videos/
-│       ├── DL3DV_videos/      (8 videos)
-│       └── MipNeRF360_videos/ (4 videos)
+│       ├── DL3DV_videos/
+│       └── MipNeRF360_videos/
 └── README.md
 ```
 
