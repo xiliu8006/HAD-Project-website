@@ -212,6 +212,10 @@ function initializeVideoComparisons() {
       }
     }
 
+    function alignVideos(threshold) {
+      alignTime(beforeVideo, afterVideo, threshold);
+    }
+
     function setPlaybackRate(rate) {
       beforeVideo.playbackRate = rate;
       afterVideo.playbackRate = rate;
@@ -233,7 +237,7 @@ function initializeVideoComparisons() {
       }
 
       setPlaybackRate(1);
-      alignTime(beforeVideo, afterVideo, 0);
+      alignVideos(0.2);
 
       var beforePlay = beforeVideo.play();
       var afterPlay = afterVideo.play();
@@ -276,44 +280,21 @@ function initializeVideoComparisons() {
         return;
       }
 
-      if (beforeVideo.paused || afterVideo.paused) {
-        playBoth();
-      }
-
-      alignTime(beforeVideo, afterVideo, 0.04);
+      alignVideos(0.25);
     }
 
     [beforeVideo, afterVideo].forEach(function(video) {
-      video.addEventListener('pause', function() {
-        if (compare.dataset.shouldPlay === 'true' && !video.ended) {
-          playBoth();
-        }
-      });
-
       video.addEventListener('seeking', function() {
         alignTime(video, video === beforeVideo ? afterVideo : beforeVideo, 0);
       });
 
-      video.addEventListener('waiting', function() {
-        if (compare.dataset.shouldPlay === 'true') {
-          pauseBoth();
-        }
-      });
       video.addEventListener('canplay', playBoth);
       video.addEventListener('loadeddata', playBoth);
       video.addEventListener('loadedmetadata', playBoth);
       video.addEventListener('ended', restartBoth);
     });
 
-    var syncInterval = window.setInterval(keepInSync, 120);
-
-    if ('requestVideoFrameCallback' in beforeVideo) {
-      var syncOnFrame = function() {
-        keepInSync();
-        beforeVideo.requestVideoFrameCallback(syncOnFrame);
-      };
-      beforeVideo.requestVideoFrameCallback(syncOnFrame);
-    }
+    var syncInterval = window.setInterval(keepInSync, 1000);
 
     if ('IntersectionObserver' in window) {
       var observer = new IntersectionObserver(function(entries) {
