@@ -365,7 +365,7 @@ function normalizeCarouselIndex(carousel, index) {
   return ((Number(index) % length) + length) % length;
 }
 
-function moveCarouselTo(carousel, targetIndex, instant) {
+function moveCarouselTo(carousel, targetIndex) {
   if (!carousel || !carousel.state) {
     return;
   }
@@ -374,7 +374,7 @@ function moveCarouselTo(carousel, targetIndex, instant) {
   carousel.state.next = targetIndex;
 
   if (typeof carousel.show === 'function') {
-    carousel.show(undefined, Boolean(instant));
+    carousel.show(undefined, true);
   }
 
   if (carousel.state.index !== targetIndex) {
@@ -400,7 +400,7 @@ function moveCarouselTo(carousel, targetIndex, instant) {
       return;
     }
 
-    carousel.container.style.transition = instant ? 'none' : carousel.container.style.transition;
+    carousel.container.style.transition = 'none';
     carousel.container.style.transform = 'translate3d(-' + targetSlide.offsetLeft + 'px, 0, 0)';
   }
 }
@@ -439,19 +439,10 @@ function moveCarouselElementTo(carouselElement, targetIndex) {
 function initializeVideoThumbnails() {
   document.querySelectorAll('.comparison-video-frame').forEach(function(carouselElement) {
     var carousel = carouselElement.bulmaCarousel;
-
-    if (!carousel || carouselElement.dataset.thumbnailsInitialized === 'true') {
-      return;
-    }
-
-    var slides = Array.prototype.slice.call(carousel.slides || []);
     var thumbnailBar = document.querySelector('[data-carousel-thumbs-for="' + carouselElement.id + '"]');
-    var hasStaticThumbnails = Boolean(thumbnailBar);
 
-    if (!thumbnailBar) {
-      thumbnailBar = document.createElement('div');
-      thumbnailBar.className = 'video-carousel-thumbs';
-      thumbnailBar.setAttribute('aria-label', 'Select video scene');
+    if (!carousel || !thumbnailBar || carouselElement.dataset.thumbnailsInitialized === 'true') {
+      return;
     }
 
     function updateActiveThumbnail() {
@@ -461,64 +452,6 @@ function initializeVideoThumbnails() {
       });
     }
 
-    function bindButton(button, index) {
-      button.dataset.index = String(index);
-      button.addEventListener('click', function() {
-        moveCarouselTo(carousel, index, true);
-        updateActiveThumbnail();
-        setTimeout(function() {
-          updateVisibleVideoComparisons(carouselElement);
-        }, 60);
-      });
-    }
-
-    if (hasStaticThumbnails) {
-      thumbnailBar.querySelectorAll('.video-carousel-thumb').forEach(function(button, index) {
-        bindButton(button, Number(button.dataset.index || index));
-      });
-    } else {
-      slides.forEach(function(slide, index) {
-        var video = slide.querySelector('.video-compare__after') || slide.querySelector('video');
-        var imageSource = video ? video.getAttribute('poster') : '';
-
-        if (!imageSource) {
-          return;
-        }
-
-        var sceneName = 'Scene ' + String(index + 1);
-        var item = slide.querySelector('.item');
-        if (item) {
-          var sceneClass = Array.prototype.slice.call(item.classList).find(function(className) {
-            return className.indexOf('item-') === 0 && className !== 'item';
-          });
-          if (sceneClass) {
-            sceneName = sceneClass.replace(/^item-/, '').replace(/-/g, ' ');
-          }
-        }
-
-        var button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'video-carousel-thumb';
-        button.setAttribute('aria-label', 'Show ' + sceneName);
-
-        var image = document.createElement('img');
-        image.src = imageSource;
-        image.alt = sceneName;
-        image.loading = 'lazy';
-
-        button.appendChild(image);
-        bindButton(button, index);
-        thumbnailBar.appendChild(button);
-      });
-    }
-
-    if (!thumbnailBar.children.length) {
-      return;
-    }
-
-    if (!hasStaticThumbnails) {
-      carouselElement.insertAdjacentElement('afterend', thumbnailBar);
-    }
     carouselElement.dataset.thumbnailsInitialized = 'true';
     updateActiveThumbnail();
 
@@ -531,10 +464,20 @@ function initializeVideoThumbnails() {
   });
 }
 
+var lastThumbnailPointerTime = 0;
+
 function handleVideoThumbnailEvent(event) {
+  if (event.type === 'click' && Date.now() - lastThumbnailPointerTime < 400) {
+    return;
+  }
+
   var button = event.target.closest('.video-carousel-thumb');
   if (!button) {
     return;
+  }
+
+  if (event.type === 'pointerdown') {
+    lastThumbnailPointerTime = Date.now();
   }
 
   var thumbnailBar = button.closest('[data-carousel-thumbs-for]');
@@ -555,7 +498,7 @@ function handleVideoThumbnailEvent(event) {
 
   var targetIndex = Number(button.dataset.index || 0);
   if (carousel) {
-    moveCarouselTo(carousel, targetIndex, true);
+    moveCarouselTo(carousel, targetIndex);
   } else {
     moveCarouselElementTo(carouselElement, targetIndex);
   }
@@ -572,37 +515,6 @@ function handleVideoThumbnailEvent(event) {
 document.addEventListener('pointerdown', handleVideoThumbnailEvent, true);
 document.addEventListener('click', handleVideoThumbnailEvent, true);
 
-function initializeAutoplayVideos(root) {
-  var scope = root || document;
-  scope.querySelectorAll('video[autoplay]').forEach(function(video) {
-    var compare = video.closest('[data-video-compare]');
-
-    video.muted = true;
-    video.defaultMuted = true;
-    video.loop = true;
-    video.playsInline = true;
-
-    if (compare) {
-      if (compare.__videoCompareSync && isElementInViewport(compare)) {
-        compare.__videoCompareSync.play();
-      } else {
-        video.pause();
-      }
-      return;
-    }
-
-    if (!isElementInViewport(video)) {
-      video.pause();
-      return;
-    }
-
-    var playAttempt = video.play();
-    if (playAttempt && typeof playAttempt.catch === 'function') {
-      playAttempt.catch(function() {});
-    }
-  });
-}
-
 function syncCarouselPair(primaryId, secondaryId) {
   var primaryElement = document.getElementById(primaryId);
   var secondaryElement = document.getElementById(secondaryId);
@@ -615,17 +527,13 @@ function syncCarouselPair(primaryId, secondaryId) {
   var secondaryCarousel = secondaryElement.bulmaCarousel;
   var isSyncing = false;
 
-  function moveTo(carousel, targetIndex) {
-    moveCarouselTo(carousel, targetIndex, true);
-  }
-
   function sync(sourceCarousel, targetCarousel, state) {
     if (isSyncing) {
       return;
     }
 
     isSyncing = true;
-    moveTo(targetCarousel, state.next);
+    moveCarouselTo(targetCarousel, state.next);
     setTimeout(function() {
       isSyncing = false;
       updateVisibleVideoComparisons();
@@ -663,12 +571,10 @@ function initializeCarousels() {
   document.querySelectorAll('.carousel').forEach(function(element) {
     if (element.bulmaCarousel) {
       element.bulmaCarousel.on('after:show', function() {
-        initializeAutoplayVideos(element);
         updateVisibleVideoComparisons(element);
         initializeVideoThumbnails();
       });
       element.bulmaCarousel.on('before:show', function() {
-        initializeAutoplayVideos(element);
         updateVisibleVideoComparisons(element);
       });
     }
@@ -720,20 +626,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(updateVisibleVideoComparisons, 200);
     setTimeout(updateVisibleVideoComparisons, 800);
     setTimeout(updateVisibleVideoComparisons, 1500);
-    initializeAutoplayVideos();
-    setTimeout(initializeAutoplayVideos, 800);
-    setTimeout(initializeAutoplayVideos, 1500);
 
 });
 
 window.addEventListener('load', function() {
   initializeVideoComparisons();
   updateVisibleVideoComparisons();
-  initializeAutoplayVideos();
 });
 
 window.addEventListener('pageshow', function() {
   initializeVideoComparisons();
   updateVisibleVideoComparisons();
-  initializeAutoplayVideos();
 });
