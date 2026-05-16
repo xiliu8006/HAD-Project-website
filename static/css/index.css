@@ -173,6 +173,7 @@ body {
   --compare-position: 50%;
   position: relative;
   width: 100%;
+  aspect-ratio: 854 / 484;
   overflow: hidden;
   background: #111;
   border-radius: 8px;
@@ -184,13 +185,15 @@ body {
 .video-compare__video {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   margin: 0;
+  object-fit: cover;
   pointer-events: none;
 }
 
 .video-compare__after {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
 }
 
@@ -267,6 +270,50 @@ body {
   max-width: 45%;
 }
 
+.video-carousel-thumbs {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  max-width: min(100%, 70vw, 52rem);
+  margin: 0.8rem auto 0;
+  padding: 0.15rem 0.1rem 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.video-carousel-thumb {
+  flex: 0 0 7.2rem;
+  aspect-ratio: 854 / 484;
+  padding: 0;
+  overflow: hidden;
+  background: #111;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  opacity: 0.72;
+  transition: border-color 160ms ease, opacity 160ms ease, transform 160ms ease;
+}
+
+.video-carousel-thumb:hover,
+.video-carousel-thumb:focus-visible {
+  opacity: 1;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.video-carousel-thumb.is-active {
+  border-color: #3273dc;
+  opacity: 1;
+}
+
+.video-carousel-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 @media (max-width: 640px) {
   .video-compare__divider::after {
     width: 28px;
@@ -275,6 +322,15 @@ body {
 
   .video-compare__labels {
     font-size: 0.72rem;
+  }
+
+  .video-carousel-thumbs {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+
+  .video-carousel-thumb {
+    flex-basis: 5.8rem;
   }
 }
 
