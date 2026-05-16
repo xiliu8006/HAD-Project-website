@@ -198,14 +198,14 @@ body {
   display: block;
 }
 
-.detection-case-carousel {
+.detection-case-viewer {
   position: relative;
   width: min(100%, 62rem);
   margin-right: auto;
   margin-left: auto;
 }
 
-.detection-case-carousel > .item {
+.detection-case-viewer > .item {
   display: none;
   margin: 5px;
   overflow: hidden;
@@ -215,7 +215,7 @@ body {
   font-size: 0;
 }
 
-.detection-case-carousel > .item.is-active {
+.detection-case-viewer > .item.is-active {
   display: block;
 }
 
