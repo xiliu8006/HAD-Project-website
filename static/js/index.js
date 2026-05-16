@@ -51,8 +51,14 @@ function initializeVideoComparisons() {
     afterVideo.preload = 'metadata';
     [beforeVideo, afterVideo].forEach(function(video) {
       var source = video.querySelector('source');
-      if (source && source.getAttribute('src')) {
-        video.poster = source.getAttribute('src')
+      var sourcePath = source ? source.getAttribute('src') || source.dataset.src : '';
+      if (sourcePath) {
+        if (source && source.getAttribute('src')) {
+          source.dataset.src = source.getAttribute('src');
+          source.removeAttribute('src');
+        }
+
+        video.poster = sourcePath
           .replace('./static/videos/', './static/videos_posters/')
           .replace(/\.mp4(?:\?.*)?$/, '.jpg');
       }
@@ -145,11 +151,45 @@ function initializeVideoComparisons() {
 
     var loadRequested = false;
 
+    function isInActiveCarouselSlide() {
+      var slide = compare.closest('.slider-item');
+      return !slide || slide.classList.contains('is-current') || slide.classList.contains('is-active');
+    }
+
+    function shouldPlayNow() {
+      return compare.dataset.shouldPlay === 'true' &&
+        isElementInViewport(compare) &&
+        isInActiveCarouselSlide() &&
+        !document.hidden;
+    }
+
+    function attachVideoSources() {
+      [beforeVideo, afterVideo].forEach(function(video) {
+        var source = video.querySelector('source');
+        if (source && !source.getAttribute('src') && source.dataset.src) {
+          source.setAttribute('src', source.dataset.src);
+        }
+      });
+    }
+
+    function detachVideoSources() {
+      [beforeVideo, afterVideo].forEach(function(video) {
+        var source = video.querySelector('source');
+        if (source && source.getAttribute('src')) {
+          source.dataset.src = source.getAttribute('src');
+          source.removeAttribute('src');
+          video.removeAttribute('src');
+          video.load();
+        }
+      });
+    }
+
     function videosCanPlay() {
       return beforeVideo.readyState >= 2 && afterVideo.readyState >= 2;
     }
 
     function ensureVideosLoad() {
+      attachVideoSources();
       beforeVideo.preload = 'auto';
       afterVideo.preload = 'auto';
 
@@ -183,7 +223,7 @@ function initializeVideoComparisons() {
     }
 
     function playBoth() {
-      if (!compare.dataset.shouldPlay || compare.dataset.shouldPlay !== 'true') {
+      if (!shouldPlayNow()) {
         return;
       }
 
@@ -214,6 +254,9 @@ function initializeVideoComparisons() {
 
     function requestPlay() {
       compare.dataset.shouldPlay = 'true';
+      if (!shouldPlayNow()) {
+        return;
+      }
       ensureVideosLoad();
       playBoth();
     }
@@ -224,10 +267,12 @@ function initializeVideoComparisons() {
       loadRequested = false;
       beforeVideo.preload = 'metadata';
       afterVideo.preload = 'metadata';
+      detachVideoSources();
     }
 
     function keepInSync() {
-      if (compare.dataset.shouldPlay !== 'true') {
+      if (!shouldPlayNow()) {
+        pauseBoth();
         return;
       }
 
@@ -273,7 +318,7 @@ function initializeVideoComparisons() {
     if ('IntersectionObserver' in window) {
       var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.35 && isInActiveCarouselSlide()) {
             requestPlay();
           } else {
             requestPause();
@@ -347,7 +392,10 @@ function updateVisibleVideoComparisons(root) {
       return;
     }
 
-    if (isElementInViewport(compare)) {
+    var slide = compare.closest('.slider-item');
+    var isCurrentSlide = !slide || slide.classList.contains('is-current') || slide.classList.contains('is-active');
+
+    if (isElementInViewport(compare) && isCurrentSlide) {
       compare.__videoCompareSync.play();
       compare.__videoCompareSync.sync();
     } else {
