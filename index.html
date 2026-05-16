@@ -131,6 +131,162 @@
 <section class="hero is-light is-small">
   <div class="hero-body">
     <div class="container">
+      <h1 class="title is-2 has-text-centered" style="margin-bottom: 1rem;">
+        Hallucination Detection
+      </h1>
+      <p class="subtitle has-text-centered" style="margin-bottom: 2rem; color: #666;">
+        Our hallucination scoring network can recognize artifacts introduced by diverse generative priors, including image diffusion, video diffusion, and multi-view diffusion models.
+      </p>
+
+      <div class="detection-comparison" data-detection-comparison>
+        <div class="detection-comparison__tabs" role="tablist" aria-label="Hallucination detection examples">
+          <button type="button" class="detection-comparison__tab is-active" data-detection-target="difix3d" role="tab" aria-selected="true">Difix3D</button>
+          <button type="button" class="detection-comparison__tab" data-detection-target="genfusion" role="tab" aria-selected="false">GenFusion</button>
+          <button type="button" class="detection-comparison__tab" data-detection-target="svc" role="tab" aria-selected="false">SVC</button>
+        </div>
+
+        <div class="detection-comparison__set is-active" data-detection-set="difix3d">
+          <div id="detection-carousel-difix3d" class="carousel results-carousel detection-case-carousel" data-size="1">
+            <div class="item">
+              <div class="detection-case" data-detection-slider>
+              <h3 class="detection-case__title">Case 1</h3>
+              <div class="detection-slider" style="--left-cut: 33.333%; --right-cut: 66.667%;">
+                <img class="detection-slider__image detection-slider__image--left" src="./static/images/hallucination_detection/cases/difix3d_case1_gt.png" alt="Ground truth for Difix3D case 1">
+                <img class="detection-slider__image detection-slider__image--middle" src="./static/images/hallucination_detection/cases/difix3d_case1_method.png" alt="Difix3D result for case 1">
+                <img class="detection-slider__image detection-slider__image--right" src="./static/images/hallucination_detection/cases/difix3d_case1_score.png" alt="Hallucination score for Difix3D case 1">
+                <div class="detection-slider__label detection-slider__label--left">GT</div>
+                <div class="detection-slider__label detection-slider__label--middle">Difix3D</div>
+                <div class="detection-slider__label detection-slider__label--right">Hallucination Score</div>
+                <button type="button" class="detection-slider__handle detection-slider__handle--left" data-detection-handle="left" aria-label="Adjust GT and method comparison"></button>
+                <button type="button" class="detection-slider__handle detection-slider__handle--right" data-detection-handle="right" aria-label="Adjust method and hallucination score comparison"></button>
+              </div>
+            </div>
+            </div>
+            <div class="item">
+              <div class="detection-case" data-detection-slider>
+              <h3 class="detection-case__title">Case 2</h3>
+              <div class="detection-slider" style="--left-cut: 33.333%; --right-cut: 66.667%;">
+                <img class="detection-slider__image detection-slider__image--left" src="./static/images/hallucination_detection/cases/difix3d_case2_gt.png" alt="Ground truth for Difix3D case 2">
+                <img class="detection-slider__image detection-slider__image--middle" src="./static/images/hallucination_detection/cases/difix3d_case2_method.png" alt="Difix3D result for case 2">
+                <img class="detection-slider__image detection-slider__image--right" src="./static/images/hallucination_detection/cases/difix3d_case2_score.png" alt="Hallucination score for Difix3D case 2">
+                <div class="detection-slider__label detection-slider__label--left">GT</div>
+                <div class="detection-slider__label detection-slider__label--middle">Difix3D</div>
+                <div class="detection-slider__label detection-slider__label--right">Hallucination Score</div>
+                <button type="button" class="detection-slider__handle detection-slider__handle--left" data-detection-handle="left" aria-label="Adjust GT and method comparison"></button>
+                <button type="button" class="detection-slider__handle detection-slider__handle--right" data-detection-handle="right" aria-label="Adjust method and hallucination score comparison"></button>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="video-carousel-thumbs detection-case-thumbs" data-carousel-thumbs-for="detection-carousel-difix3d" aria-label="Select Difix3D detection case">
+            <button type="button" class="video-carousel-thumb" data-index="0" aria-label="Show Difix3D case 1">
+              <img src="./static/images/hallucination_detection/cases/difix3d_case1_gt.png" alt="Difix3D case 1" loading="lazy">
+            </button>
+            <button type="button" class="video-carousel-thumb" data-index="1" aria-label="Show Difix3D case 2">
+              <img src="./static/images/hallucination_detection/cases/difix3d_case2_gt.png" alt="Difix3D case 2" loading="lazy">
+            </button>
+          </div>
+        </div>
+
+        <div class="detection-comparison__set" data-detection-set="genfusion">
+          <div id="detection-carousel-genfusion" class="carousel results-carousel detection-case-carousel" data-size="1">
+            <div class="item">
+              <div class="detection-case" data-detection-slider>
+              <h3 class="detection-case__title">Case 1</h3>
+              <div class="detection-slider" style="--left-cut: 33.333%; --right-cut: 66.667%;">
+                <img class="detection-slider__image detection-slider__image--left" src="./static/images/hallucination_detection/cases/genfusion_case1_gt.png" alt="Ground truth for GenFusion case 1">
+                <img class="detection-slider__image detection-slider__image--middle" src="./static/images/hallucination_detection/cases/genfusion_case1_method.png" alt="GenFusion result for case 1">
+                <img class="detection-slider__image detection-slider__image--right" src="./static/images/hallucination_detection/cases/genfusion_case1_score.png" alt="Hallucination score for GenFusion case 1">
+                <div class="detection-slider__label detection-slider__label--left">GT</div>
+                <div class="detection-slider__label detection-slider__label--middle">GenFusion</div>
+                <div class="detection-slider__label detection-slider__label--right">Hallucination Score</div>
+                <button type="button" class="detection-slider__handle detection-slider__handle--left" data-detection-handle="left" aria-label="Adjust GT and method comparison"></button>
+                <button type="button" class="detection-slider__handle detection-slider__handle--right" data-detection-handle="right" aria-label="Adjust method and hallucination score comparison"></button>
+              </div>
+            </div>
+            </div>
+            <div class="item">
+              <div class="detection-case" data-detection-slider>
+              <h3 class="detection-case__title">Case 2</h3>
+              <div class="detection-slider" style="--left-cut: 33.333%; --right-cut: 66.667%;">
+                <img class="detection-slider__image detection-slider__image--left" src="./static/images/hallucination_detection/cases/genfusion_case2_gt.png" alt="Ground truth for GenFusion case 2">
+                <img class="detection-slider__image detection-slider__image--middle" src="./static/images/hallucination_detection/cases/genfusion_case2_method.png" alt="GenFusion result for case 2">
+                <img class="detection-slider__image detection-slider__image--right" src="./static/images/hallucination_detection/cases/genfusion_case2_score.png" alt="Hallucination score for GenFusion case 2">
+                <div class="detection-slider__label detection-slider__label--left">GT</div>
+                <div class="detection-slider__label detection-slider__label--middle">GenFusion</div>
+                <div class="detection-slider__label detection-slider__label--right">Hallucination Score</div>
+                <button type="button" class="detection-slider__handle detection-slider__handle--left" data-detection-handle="left" aria-label="Adjust GT and method comparison"></button>
+                <button type="button" class="detection-slider__handle detection-slider__handle--right" data-detection-handle="right" aria-label="Adjust method and hallucination score comparison"></button>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="video-carousel-thumbs detection-case-thumbs" data-carousel-thumbs-for="detection-carousel-genfusion" aria-label="Select GenFusion detection case">
+            <button type="button" class="video-carousel-thumb" data-index="0" aria-label="Show GenFusion case 1">
+              <img src="./static/images/hallucination_detection/cases/genfusion_case1_gt.png" alt="GenFusion case 1" loading="lazy">
+            </button>
+            <button type="button" class="video-carousel-thumb" data-index="1" aria-label="Show GenFusion case 2">
+              <img src="./static/images/hallucination_detection/cases/genfusion_case2_gt.png" alt="GenFusion case 2" loading="lazy">
+            </button>
+          </div>
+        </div>
+
+        <div class="detection-comparison__set" data-detection-set="svc">
+          <div id="detection-carousel-svc" class="carousel results-carousel detection-case-carousel" data-size="1">
+            <div class="item">
+              <div class="detection-case" data-detection-slider>
+              <h3 class="detection-case__title">Case 1</h3>
+              <div class="detection-slider" style="--left-cut: 33.333%; --right-cut: 66.667%;">
+                <img class="detection-slider__image detection-slider__image--left" src="./static/images/hallucination_detection/cases/svc_case1_gt.png" alt="Ground truth for SVC case 1">
+                <img class="detection-slider__image detection-slider__image--middle" src="./static/images/hallucination_detection/cases/svc_case1_method.png" alt="SVC result for case 1">
+                <img class="detection-slider__image detection-slider__image--right" src="./static/images/hallucination_detection/cases/svc_case1_score.png" alt="Hallucination score for SVC case 1">
+                <div class="detection-slider__label detection-slider__label--left">GT</div>
+                <div class="detection-slider__label detection-slider__label--middle">SVC</div>
+                <div class="detection-slider__label detection-slider__label--right">Hallucination Score</div>
+                <button type="button" class="detection-slider__handle detection-slider__handle--left" data-detection-handle="left" aria-label="Adjust GT and method comparison"></button>
+                <button type="button" class="detection-slider__handle detection-slider__handle--right" data-detection-handle="right" aria-label="Adjust method and hallucination score comparison"></button>
+              </div>
+            </div>
+            </div>
+            <div class="item">
+              <div class="detection-case" data-detection-slider>
+              <h3 class="detection-case__title">Case 2</h3>
+              <div class="detection-slider" style="--left-cut: 33.333%; --right-cut: 66.667%;">
+                <img class="detection-slider__image detection-slider__image--left" src="./static/images/hallucination_detection/cases/svc_case2_gt.png" alt="Ground truth for SVC case 2">
+                <img class="detection-slider__image detection-slider__image--middle" src="./static/images/hallucination_detection/cases/svc_case2_method.png" alt="SVC result for case 2">
+                <img class="detection-slider__image detection-slider__image--right" src="./static/images/hallucination_detection/cases/svc_case2_score.png" alt="Hallucination score for SVC case 2">
+                <div class="detection-slider__label detection-slider__label--left">GT</div>
+                <div class="detection-slider__label detection-slider__label--middle">SVC</div>
+                <div class="detection-slider__label detection-slider__label--right">Hallucination Score</div>
+                <button type="button" class="detection-slider__handle detection-slider__handle--left" data-detection-handle="left" aria-label="Adjust GT and method comparison"></button>
+                <button type="button" class="detection-slider__handle detection-slider__handle--right" data-detection-handle="right" aria-label="Adjust method and hallucination score comparison"></button>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="video-carousel-thumbs detection-case-thumbs" data-carousel-thumbs-for="detection-carousel-svc" aria-label="Select SVC detection case">
+            <button type="button" class="video-carousel-thumb" data-index="0" aria-label="Show SVC case 1">
+              <img src="./static/images/hallucination_detection/cases/svc_case1_gt.png" alt="SVC case 1" loading="lazy">
+            </button>
+            <button type="button" class="video-carousel-thumb" data-index="1" aria-label="Show SVC case 2">
+              <img src="./static/images/hallucination_detection/cases/svc_case2_gt.png" alt="SVC case 2" loading="lazy">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="content has-text-justified detection-analysis">
+        <p>
+          We evaluate whether the hallucination scoring module generalizes beyond the diffusion model used during training. Although HAD is trained on images generated by Diffix3D+, which adopts image diffusion priors, we find that the learned scorer also successfully identifies unreliable regions produced by other generative methods without additional fine-tuning, including GenFusion, which relies on video diffusion priors, and SVC, which uses multi-view diffusion. This suggests that the predicted scores are driven by underlying multi-view inconsistencies rather than artifacts specific to a particular generator, enabling HAD to detect hallucinations from diverse diffusion models before they are fused into the 3D reconstruction.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
       <h1 class="title is-2 has-text-centered" style="margin-bottom: 2rem;">
         Hallucination Removal Results
       </h1>
@@ -360,38 +516,6 @@
         </div>
       </div>
 
-    </div>
-  </div>
-</section>
-
-<section class="hero is-light is-small">
-  <div class="hero-body">
-    <div class="container">
-      <h1 class="title is-2 has-text-centered" style="margin-bottom: 1rem;">
-        Hallucination Detection
-      </h1>
-      <p class="subtitle has-text-centered" style="margin-bottom: 2rem; color: #666;">
-        Our hallucination scoring network can also detect hallucinations from video and multi-view diffusion priors
-      </p>
-
-      <div id="hallucination-detection-carousel" class="carousel results-carousel detection-figure-frame" data-size="1">
-        <div class="item">
-          <figure class="image">
-            <img src="./static/images/hallucination_detection/video-diffusion.png" alt="Hallucination detection results for video diffusion">
-          </figure>
-        </div>
-        <div class="item">
-          <figure class="image">
-            <img src="./static/images/hallucination_detection/Multi-view-diffusion.png" alt="Hallucination detection results for multi-view diffusion">
-          </figure>
-        </div>
-      </div>
-
-      <div class="content has-text-justified detection-analysis">
-        <p>
-          Beyond removing hallucinations in our reconstruction pipeline, we further evaluate whether the hallucination scoring module can recognize artifacts introduced by other diffusion priors. Given outputs from video diffusion and multi-view diffusion pipelines, the same scorer highlights unreliable regions without fine-tuning on those target models. This suggests that our score is driven by multi-view inconsistency rather than generator-specific artifacts, allowing HAD to detect hallucinations from diverse diffusion models before they are fused into the 3D reconstruction.
-        </p>
-      </div>
     </div>
   </div>
 </section>

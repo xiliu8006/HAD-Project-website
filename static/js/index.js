@@ -416,11 +416,26 @@ function getCarouselIndex(carousel) {
 function moveCarouselElementTo(carouselElement, targetIndex) {
   var container = carouselElement.querySelector('.slider-container');
   var slides = Array.prototype.slice.call(carouselElement.querySelectorAll('.slider-item'));
+
+  if (!container || !slides.length) {
+    var items = Array.prototype.slice.call(carouselElement.querySelectorAll(':scope > .item'));
+    if (!items.length) {
+      return;
+    }
+
+    targetIndex = ((Number(targetIndex) % items.length) + items.length) % items.length;
+    carouselElement.dataset.currentIndex = String(targetIndex);
+    items.forEach(function(item, index) {
+      item.classList.toggle('is-active', index === targetIndex);
+    });
+    return;
+  }
+
   var targetSlide = slides.find(function(slide) {
     return Number(slide.dataset.sliderIndex || 0) === targetIndex;
   });
 
-  if (!container || !slides.length || !targetSlide) {
+  if (!targetSlide) {
     return;
   }
 
@@ -436,17 +451,52 @@ function moveCarouselElementTo(carouselElement, targetIndex) {
   container.style.transform = 'translate3d(-' + targetSlide.offsetLeft + 'px, 0, 0)';
 }
 
+function refreshCarouselLayout(carouselElement) {
+  var carousel = carouselElement ? carouselElement.bulmaCarousel : null;
+  var container = carouselElement ? carouselElement.querySelector('.slider-container') : null;
+  var slides = carousel ? Array.prototype.slice.call(carousel.slides || []) : [];
+
+  if (!carousel || !container || !slides.length) {
+    return;
+  }
+
+  var width = carouselElement.getBoundingClientRect().width;
+  if (!width) {
+    return;
+  }
+
+  slides.forEach(function(slide) {
+    slide.style.width = Math.ceil(width) + 'px';
+  });
+  container.style.width = Math.ceil(width * slides.length) + 'px';
+  container.style.height = '';
+  if (carousel.wrapper) {
+    carousel.wrapper.style.height = '';
+  }
+
+  moveCarouselTo(carousel, getCarouselIndex(carousel));
+}
+
+function refreshVisibleCarousels(root) {
+  var scope = root || document;
+  scope.querySelectorAll('.carousel').forEach(function(carouselElement) {
+    if (isElementInViewport(carouselElement)) {
+      refreshCarouselLayout(carouselElement);
+    }
+  });
+}
+
 function initializeVideoThumbnails() {
-  document.querySelectorAll('.comparison-video-frame').forEach(function(carouselElement) {
+  document.querySelectorAll('.comparison-video-frame, .detection-case-carousel').forEach(function(carouselElement) {
     var carousel = carouselElement.bulmaCarousel;
     var thumbnailBar = document.querySelector('[data-carousel-thumbs-for="' + carouselElement.id + '"]');
 
-    if (!carousel || !thumbnailBar || carouselElement.dataset.thumbnailsInitialized === 'true') {
+    if (!thumbnailBar || carouselElement.dataset.thumbnailsInitialized === 'true') {
       return;
     }
 
     function updateActiveThumbnail() {
-      var activeIndex = getCarouselIndex(carousel);
+      var activeIndex = carousel ? getCarouselIndex(carousel) : Number(carouselElement.dataset.currentIndex || 0);
       thumbnailBar.querySelectorAll('.video-carousel-thumb').forEach(function(button) {
         button.classList.toggle('is-active', Number(button.dataset.index) === activeIndex);
       });
@@ -455,12 +505,69 @@ function initializeVideoThumbnails() {
     carouselElement.dataset.thumbnailsInitialized = 'true';
     updateActiveThumbnail();
 
-    carousel.on('after:show', function() {
-      updateActiveThumbnail();
+    if (carousel) {
+      carousel.on('after:show', function() {
+        updateActiveThumbnail();
+      });
+      carousel.on('before:show', function() {
+        setTimeout(updateActiveThumbnail, 0);
+      });
+    }
+  });
+}
+
+function initializeDetectionCaseCarousels() {
+  document.querySelectorAll('.detection-case-carousel').forEach(function(carouselElement) {
+    if (carouselElement.dataset.caseCarouselInitialized === 'true') {
+      return;
+    }
+
+    var items = Array.prototype.slice.call(carouselElement.querySelectorAll(':scope > .item'));
+    if (!items.length) {
+      return;
+    }
+
+    function show(index) {
+      index = ((Number(index) % items.length) + items.length) % items.length;
+      carouselElement.dataset.currentIndex = String(index);
+      items.forEach(function(item, itemIndex) {
+        item.classList.toggle('is-active', itemIndex === index);
+      });
+
+      var thumbnailBar = document.querySelector('[data-carousel-thumbs-for="' + carouselElement.id + '"]');
+      if (thumbnailBar) {
+        thumbnailBar.querySelectorAll('.video-carousel-thumb').forEach(function(button) {
+          button.classList.toggle('is-active', Number(button.dataset.index) === index);
+        });
+      }
+    }
+
+    var previous = document.createElement('button');
+    previous.type = 'button';
+    previous.className = 'detection-case-nav detection-case-nav--previous';
+    previous.setAttribute('aria-label', 'Previous detection case');
+
+    var next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'detection-case-nav detection-case-nav--next';
+    next.setAttribute('aria-label', 'Next detection case');
+
+    previous.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      show(Number(carouselElement.dataset.currentIndex || 0) - 1);
     });
-    carousel.on('before:show', function() {
-      setTimeout(updateActiveThumbnail, 0);
+
+    next.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      show(Number(carouselElement.dataset.currentIndex || 0) + 1);
     });
+
+    carouselElement.appendChild(previous);
+    carouselElement.appendChild(next);
+    carouselElement.dataset.caseCarouselInitialized = 'true';
+    show(0);
   });
 }
 
@@ -563,7 +670,8 @@ function initializeCarousels() {
     autoplaySpeed: 3000
   };
 
-  bulmaCarousel.attach('.carousel', options);
+  bulmaCarousel.attach('.carousel:not(.detection-case-carousel)', options);
+  initializeDetectionCaseCarousels();
   initializeVideoThumbnails();
 
   syncCarouselPair('results-carousel-dl3dv', 'image-carousel-dl3dv');
@@ -598,6 +706,129 @@ function initializeInterpolation() {
   setInterpolationImage(0);
 }
 
+function initializeDetectionComparisons() {
+  document.querySelectorAll('[data-detection-comparison]').forEach(function(comparison) {
+    if (comparison.dataset.initialized === 'true') {
+      return;
+    }
+
+    var tabs = Array.prototype.slice.call(comparison.querySelectorAll('[data-detection-target]'));
+    var sets = Array.prototype.slice.call(comparison.querySelectorAll('[data-detection-set]'));
+
+    if (!tabs.length || !sets.length) {
+      return;
+    }
+
+    function showSet(target) {
+      tabs.forEach(function(tab) {
+        var isActive = tab.dataset.detectionTarget === target;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      sets.forEach(function(set) {
+        set.classList.toggle('is-active', set.dataset.detectionSet === target);
+      });
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        showSet(tab.dataset.detectionTarget);
+        setTimeout(function() {
+          initializeDetectionCaseCarousels();
+          initializeVideoThumbnails();
+          updateVisibleVideoComparisons();
+        }, 60);
+      });
+    });
+
+    comparison.dataset.initialized = 'true';
+  });
+
+  document.querySelectorAll('[data-detection-slider]').forEach(function(wrapper) {
+    if (wrapper.dataset.sliderInitialized === 'true') {
+      return;
+    }
+
+    var slider = wrapper.querySelector('.detection-slider');
+    var leftHandle = wrapper.querySelector('[data-detection-handle="left"]');
+    var rightHandle = wrapper.querySelector('[data-detection-handle="right"]');
+
+    if (!slider || !leftHandle || !rightHandle) {
+      return;
+    }
+
+    var leftCut = 33.333;
+    var rightCut = 66.667;
+    var activeHandle = null;
+    var minGap = 8;
+
+    function setCuts(nextLeft, nextRight) {
+      leftCut = Math.max(0, Math.min(nextLeft, nextRight - minGap));
+      rightCut = Math.min(100, Math.max(nextRight, leftCut + minGap));
+
+      slider.style.setProperty('--left-cut', leftCut + '%');
+      slider.style.setProperty('--right-cut', rightCut + '%');
+    }
+
+    function valueFromEvent(event) {
+      var rect = slider.getBoundingClientRect();
+      if (!rect.width) {
+        return 0;
+      }
+
+      return ((event.clientX - rect.left) / rect.width) * 100;
+    }
+
+    function startDrag(handleName, event) {
+      activeHandle = handleName;
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.pointerId !== undefined && slider.setPointerCapture) {
+        slider.setPointerCapture(event.pointerId);
+      }
+    }
+
+    function drag(event) {
+      if (!activeHandle) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      var value = valueFromEvent(event);
+      if (activeHandle === 'left') {
+        setCuts(value, rightCut);
+      } else {
+        setCuts(leftCut, value);
+      }
+    }
+
+    function stopDrag(event) {
+      activeHandle = null;
+      if (event && event.stopPropagation) {
+        event.stopPropagation();
+      }
+    }
+
+    leftHandle.addEventListener('pointerdown', function(event) {
+      startDrag('left', event);
+    });
+    rightHandle.addEventListener('pointerdown', function(event) {
+      startDrag('right', event);
+    });
+    slider.addEventListener('pointermove', drag);
+    slider.addEventListener('pointerup', stopDrag);
+    slider.addEventListener('pointercancel', stopDrag);
+    slider.addEventListener('pointerleave', stopDrag);
+
+    setCuts(leftCut, rightCut);
+    wrapper.dataset.sliderInitialized = 'true';
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Check for click events on the navbar burger icon
     document.querySelectorAll('.navbar-burger').forEach(function(burger) {
@@ -615,6 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCarousels();
 
     initializeInterpolation();
+    initializeDetectionComparisons();
 
     if (typeof bulmaSlider !== 'undefined') {
       bulmaSlider.attach();
